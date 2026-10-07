@@ -5,7 +5,8 @@ cd "$(dirname "$0")/.." || exit 1
 fail=0
 t() { if "$@"; then echo "ok   - $*"; else echo "FAIL - $*"; fail=1; fi; }
 
-export VPN_HOME="$(mktemp -d)" VPN_CONF=/nonexistent
+VPN_HOME="$(mktemp -d)"
+export VPN_HOME VPN_CONF=/nonexistent
 # shellcheck disable=SC1091
 . ./vpn.sh
 

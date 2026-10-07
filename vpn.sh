@@ -311,6 +311,7 @@ _vpn_tun_on() {
     sudo sh -c "nohup '$bin' run -c '$_VPN_SB_CONF' >>'$_VPN_SB_LOG' 2>&1 &"
 
     local i
+    # shellcheck disable=SC2034
     for i in 1 2 3 4 5 6; do
         sleep 1
         ip link show tun0 >/dev/null 2>&1 && break
