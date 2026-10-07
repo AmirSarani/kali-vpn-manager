@@ -6,7 +6,8 @@ fail=0
 t() { if "$@"; then echo "ok   - $*"; else echo "FAIL - $*"; fail=1; fi; }
 
 VPN_HOME="$(mktemp -d)"
-export VPN_HOME VPN_CONF=/nonexistent
+VPN_CONF="$VPN_HOME/config"
+export VPN_HOME VPN_CONF
 # shellcheck disable=SC1091
 . ./vpn.sh
 
@@ -34,6 +35,12 @@ _vpn_on 192.168.100.1 >/dev/null
 t test "$http_proxy" = "http://192.168.100.1:10808"
 _vpn_off >/dev/null
 t test -z "${http_proxy:-}"
+
+t test "$(_t fa en)" = "en"
+_vpn_lang fa >/dev/null
+t test "$(_t fa en)" = "fa"
+t grep -q '^VPN_LANG="fa"' "$VPN_CONF"
+VPN_LANG=en
 
 rm -rf "$VPN_HOME"
 exit $fail

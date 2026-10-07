@@ -39,7 +39,7 @@ jobs:
       - name: Installer end-to-end (from local clone)
         run: |
           touch ~/.bashrc
-          bash install.sh --with-singbox
+          bash install.sh --lang en --with-singbox
           bash -ic 'type vpn && vpn help' </dev/null
           bash uninstall.sh -y
           ! grep -q kali-vpn-manager ~/.bashrc
