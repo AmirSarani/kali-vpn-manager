@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install zsh and shellcheck
+        run: sudo apt-get update -qq && sudo apt-get install -y zsh shellcheck
+
+      - name: Syntax check
+        run: |
+          bash -n install.sh uninstall.sh vpn.sh tests/test.sh
+          zsh -n vpn.sh
+
+      - name: ShellCheck
+        run: shellcheck -S warning install.sh uninstall.sh vpn.sh tests/test.sh
+
+      - name: Install sing-box (for config validation)
+        run: |
+          v=1.13.21
+          curl -fsSL "https://github.com/SagerNet/sing-box/releases/download/v$v/sing-box-$v-linux-amd64.tar.gz" | tar -xz
+          sudo install -m 755 "sing-box-$v-linux-amd64/sing-box" /usr/local/bin/sing-box
+
+      - name: Unit tests (bash)
+        run: bash tests/test.sh
+
+      - name: Source in zsh
+        run: |
+          export VPN_HOME="$(mktemp -d)" VPN_CONF=/nonexistent
+          zsh -c '. ./vpn.sh && whence -w vpn && vpn help >/dev/null'
+
+      - name: Installer end-to-end (from local clone)
+        run: |
+          touch ~/.bashrc
+          bash install.sh --with-singbox
+          bash -ic 'type vpn && vpn help' </dev/null
+          bash uninstall.sh -y
+          ! grep -q kali-vpn-manager ~/.bashrc
